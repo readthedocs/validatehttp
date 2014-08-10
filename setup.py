@@ -1,25 +1,29 @@
-'''Nagios checkurlspec plugin
+'''
+validatehttp - HTTP request spec validation
+===========================================
 
-Using a spec file in JSON or YAML, check a given host for response code and
-header returns
+Using a spec file in JSON or YAML, run requests
 '''
 
 from setuptools import setup, find_packages
 
 setup(
-    name='nagios-checkurlspec',
+    name='validatehttp',
     version=0.1,
-    description='Nagios plugin to check a spec file of URL responses',
+    description='Validate a list of HTTP request spec against a host',
     long_description=__doc__,
     keywords='nagios url',
     author='Anthony Johnson',
     author_email='aj@ohess.org',
     license='MIT',
     packages=find_packages(),
-    install_requires=['pynag'],
+    install_requires=['pynag', 'requests', 'pyyaml'],
     tests_require=['nose'],
     test_suite='nose.collector',
     entry_points = {
-        'console_scripts': ['check_urlspec=checkurlspec:run_plugin'],
+        'console_scripts': [
+            'check_validatehttp=validatehttp.nagios:CheckURLSpecPlugin.run',
+            'validatehttp=validatehttp.cli:ValidatorCLI.cli'
+        ],
     }
 )
