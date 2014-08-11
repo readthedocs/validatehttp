@@ -15,18 +15,24 @@ class ValidatorCLI(object):
         self.verbose = verbose
 
     def run(self):
-        stats = {'pass': 0, 'fail': 0, 'count': 0}
-        for result in self.validator.validate():
-            stats['count'] += 1
+        results = list(self.validator.validate())
+        passed = [result for result in results
+                  if isinstance(result, ValidationPass)]
+        failures = [result for result in results
+                    if isinstance(result, ValidationFail)]
+        output_list = failures
+        if self.verbose:
+            output_list = results
+
+        for result in output_list:
             if isinstance(result, ValidationPass):
-                stats['pass'] += 1
-                if self.verbose:
-                    print('Pass: spec {0}'.format(result.rule.uri))
+                print('Pass: spec {0}'.format(result.rule.uri))
             elif isinstance(result, ValidationFail):
-                stats['fail'] += 1
                 print('Fail: spec {0} failed: {1}'
                       .format(result.rule.uri, result.error))
-        print('Passed {pass}/{count} ({fail} failures)'.format(**stats))
+        print('Passed {passed}/{count} ({failures} failures)'
+              .format(count=len(results), passed=len(passed),
+                      failures=len(failures)))
 
     @classmethod
     def cli(cls):

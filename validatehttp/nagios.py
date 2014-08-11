@@ -34,7 +34,18 @@ class CheckURLSpecPlugin(Plugin):
         # Build, test validator
         validator = Validator.load(spec_file, host, port)
         results = list(validator.validate())
+        passed = [result for result in results
+                  if isinstance(result, ValidationPass)]
         failures = [result for result in results
                     if isinstance(result, ValidationFail)]
-        if len(failures) > 0:
-            print(failures)
+
+        if len(list(failures)) == 0:
+            self.add_message('OK', '{0}/{0} Spec tests passed'
+                             .format(len(results)))
+        else:
+            for result in failures:
+                self.add_message('CRITICAL',
+                                 'spec {0} failed'
+                                 .format(result.rule.uri))
+        (code, message) = self.check_messages(joinstr=', ')
+        self.nagios_exit(code, message)
