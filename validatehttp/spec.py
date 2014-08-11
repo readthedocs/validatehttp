@@ -126,14 +126,14 @@ class ValidatorSpecRule(object):
                 for (header, value) in params.pop('headers').items():
                     resp_value = resp.headers.get(header)
                     if resp_value != value:
-                        raise Exception('Response header {0} mismatch '
-                                        '({1} != {2})'.format(header, value,
-                                                              resp_value))
+                        raise ValueError('Response header {0} mismatch '
+                                         '({1} != {2})'.format(header, value,
+                                                               resp_value))
             # Compare others
             for (key, value) in params.items():
                 resp_value = getattr(resp, key, None)
                 if resp_value != value:
-                    raise Exception('Response {0} mismatch '
-                                    '({1} != {2})'.format(key, value,
-                                                          resp_value))
+                    raise ValueError('Response {0} mismatch '
+                                     '({1} != {2})'.format(key, value,
+                                                           resp_value))
         return True

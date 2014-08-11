@@ -6,6 +6,7 @@ import urlparse
 from collections import namedtuple
 
 from requests import Request, Response, Session
+from requests.exceptions import SSLError, ConnectionError
 
 from .spec import ValidatorSpec
 
@@ -29,13 +30,16 @@ class Validator(object):
         session = Session()
         for rule in self.spec.get_rules():
             req = rule.get_request(self.host, self.port)
-            resp = session.send(req.prepare(), allow_redirects=False)
             try:
+                resp = session.send(req.prepare(), allow_redirects=False)
                 if rule.matches(resp):
                     yield ValidationPass(rule=rule, request=req, response=resp)
-                else:
-                    raise Exception('Rule miss without exception')
-            except Exception as e:
+            except (ConnectionError, SSLError) as e:
+                # No response yet
+                yield ValidationFail(rule=rule, request=req, response=None,
+                                     error=e)
+            except ValueError as e:
+                # Response received, validation error
                 yield ValidationFail(rule=rule, request=req, response=resp,
                                      error=e)
 
