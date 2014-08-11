@@ -28,7 +28,7 @@ class ValidatorCLI(object):
             if isinstance(result, ValidationPass):
                 print('Pass: spec {0}'.format(result.rule.uri))
             elif isinstance(result, ValidationFail):
-                print('Fail: spec {0} failed: {1}'
+                print('Fail: spec {0}: {1}'
                       .format(result.rule.uri, result.error))
         print('Passed {passed}/{count} ({failures} failures)'
               .format(count=len(results), passed=len(passed),
