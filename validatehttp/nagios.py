@@ -43,6 +43,10 @@ class CheckURLSpecPlugin(Plugin):
             self.add_message('OK', '{0}/{0} Spec tests passed'
                              .format(len(results)))
         else:
+            self.add_message('CRITICAL',
+                             'Passed {passed}/{count} ({failures} failures)'
+                             .format(count=len(results), passed=len(passed),
+                                     failures=len(failures)))
             for result in failures:
                 self.add_message('CRITICAL',
                                  'spec {0} failed'
