@@ -22,7 +22,8 @@ class TestSpec(TestCase):
             '{"http://example.com": {"status_code": 200}}',
             '{"http://example.com/foo/bar": {"status_code": 200}}',
             '{"http://example.com": {"status_code": 200, "method": "post"}}',
-            '{"http://example.com": {"request": {"headers": {"x-foo": 42}}}}'
+            '{"http://example.com": {"request": {"headers": {"x-foo": 42}}}}',
+            '{"foo": FAIL HERE}'
         ]
 
     @patch('os.path.exists', lambda n: True)
@@ -32,6 +33,27 @@ class TestSpec(TestCase):
         mock_open(mock, read_data=self.fixtures[0])
         validator = Validator.load('rtd.json', host='127.0.0.1', port=8000)
         self.assertEqual(len(list(validator.spec.get_rules())), 1)
+
+    @patch('os.path.exists', lambda n: True)
+    @patch('validatehttp.spec.open', create=True)
+    def test_invalid_json_from_file(self, mock):
+        '''Invalid json from mocked file'''
+        mock_open(mock, read_data=self.fixtures[4])
+        self.assertRaises(ValueError, Validator.load, 'rtd.json')
+
+    @patch('os.path.exists', lambda n: True)
+    @patch('validatehttp.spec.open', create=True)
+    def test_invalid_yaml_from_file(self, mock):
+        '''Invalid YAML from mocked file'''
+        mock_open(mock, read_data='foo: status_code: tr')
+        self.assertRaises(ValueError, Validator.load, 'rtd.yaml')
+
+    @patch('os.path.exists', lambda n: True)
+    @patch('validatehttp.spec.open', create=True)
+    def test_bad_spec(self, mock):
+        '''Valid data, but bad spec'''
+        mock_open(mock, read_data='foo:')
+        validator = Validator.load('rtd.yaml', host='127.0.0.1', port=8000)
 
     @patch('os.path.exists', lambda n: True)
     @patch('validatehttp.spec.open', create=True)

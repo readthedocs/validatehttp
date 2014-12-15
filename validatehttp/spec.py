@@ -33,7 +33,7 @@ class ValidatorSpecBase(object):
         for (uri, params) in spec.items():
             try:
                 rules.append(ValidatorSpecRule(uri, **params))
-            except KeyError:
+            except (KeyError, TypeError):
                 pass
         return cls(rules)
 
@@ -66,7 +66,7 @@ class YamlValidatorSpec(ValidatorSpecBase):
             raise NameError("YAML support is missing")
         try:
             spec = yaml.safe_load(handle.read())
-        except ValueError:
+        except (ValueError, yaml.YAMLError):
             raise ValueError("Invalid YAML spec file")
         return spec
 
