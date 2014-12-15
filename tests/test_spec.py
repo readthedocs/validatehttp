@@ -26,6 +26,7 @@ class TestSpec(TestCase):
             '{"foo": FAIL HERE}'
         ]
 
+    # JSON support
     @patch('os.path.exists', lambda n: True)
     @patch('validatehttp.spec.open', create=True)
     def test_load_json_from_file(self, mock):
@@ -41,6 +42,17 @@ class TestSpec(TestCase):
         mock_open(mock, read_data=self.fixtures[4])
         self.assertRaises(ValueError, Validator.load, 'rtd.json')
 
+    # YAML support
+    @patch('os.path.exists', lambda n: True)
+    @patch('validatehttp.spec.open', create=True)
+    def test_yaml_not_loaded(self, mock):
+        '''YAML is not loaded'''
+        import sys
+        mock_open(mock, read_data='foo: status_code: 200')
+        with patch.dict('sys.modules', yaml=None):
+            del sys.modules['yaml']
+            self.assertRaises(NameError, Validator.load, 'rtd.yaml')
+
     @patch('os.path.exists', lambda n: True)
     @patch('validatehttp.spec.open', create=True)
     def test_invalid_yaml_from_file(self, mock):
@@ -48,12 +60,14 @@ class TestSpec(TestCase):
         mock_open(mock, read_data='foo: status_code: tr')
         self.assertRaises(ValueError, Validator.load, 'rtd.yaml')
 
+    # Generic
     @patch('os.path.exists', lambda n: True)
     @patch('validatehttp.spec.open', create=True)
     def test_bad_spec(self, mock):
         '''Valid data, but bad spec'''
         mock_open(mock, read_data='foo:')
         validator = Validator.load('rtd.yaml', host='127.0.0.1', port=8000)
+        self.assertEqual(len(list(validator.spec.get_rules())), 0)
 
     @patch('os.path.exists', lambda n: True)
     @patch('validatehttp.spec.open', create=True)
