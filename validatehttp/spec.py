@@ -65,7 +65,7 @@ class YamlValidatorSpec(ValidatorSpecBase):
         if not 'yaml' in sys.modules:
             raise NameError("YAML support is missing")
         try:
-            spec = yaml.load(handle)
+            spec = yaml.safe_load(handle.read())
         except ValueError:
             raise ValueError("Invalid YAML spec file")
         return spec

@@ -5,7 +5,7 @@ from __future__ import print_function, unicode_literals
 from io import StringIO
 from unittest import TestCase
 
-from mock import patch
+from mock import patch, mock_open
 from requests import Response
 from requests.exceptions import SSLError, ConnectionError
 
@@ -14,6 +14,40 @@ from validatehttp.validate import Validator, ValidationPass, ValidationFail
 
 
 class TestValidator(TestCase):
+
+    @patch('os.path.exists', lambda n: False)
+    @patch('validatehttp.spec.open', create=True)
+    def test_missing_file(self, mock):
+        '''Fail on missing file'''
+        mock_open(mock, read_data='{"/foo": {"status_code": 200}}')
+        self.assertRaises(IOError, Validator.load, 'test.json')
+
+    @patch('os.path.exists', lambda n: True)
+    @patch('validatehttp.spec.open', create=True)
+    def test_load_json(self, mock):
+        '''Pass loading JSON file'''
+        mock_open(mock, read_data='{"/foo": {"status_code": 200}}')
+        validator = Validator.load('test.json')
+        self.assertEqual(len(list(validator.spec.get_rules())), 1)
+
+    @patch('os.path.exists', lambda n: True)
+    @patch('validatehttp.spec.open', create=True)
+    def test_load_yaml(self, mock):
+        '''Pass loading YAML file'''
+        mock_open(mock, read_data=("foo:\n"
+                                   "  status_code: 200\n"))
+        validator = Validator.load('test.yaml')
+        self.assertEqual(len(list(validator.spec.get_rules())), 1)
+
+    @patch('os.path.exists', lambda n: True)
+    @patch('validatehttp.spec.open', create=True)
+    def test_load_unknown(self, mock):
+        '''Fail on unknown file extension'''
+        mock_open(mock, read_data="None")
+        self.assertRaises(ValueError, Validator.load, 'test.foo')
+
+
+class TestValidatorValidation(TestCase):
 
     def setUp(self):
         self.validator = Validator('test.yaml', host='127.0.0.1', port=80)
