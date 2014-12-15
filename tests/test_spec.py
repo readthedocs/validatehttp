@@ -12,7 +12,7 @@ from unittest import TestCase
 from mock import patch, mock_open
 
 from validatehttp.validate import Validator
-from validatehttp.spec import ValidatorSpec
+from validatehttp.spec import JsonValidatorSpec, YamlValidatorSpec
 
 
 class TestSpec(TestCase):
@@ -59,10 +59,12 @@ class TestSpec(TestCase):
         assert 'Host' in req.headers
         assert req.headers['Host'] == 'example.com'
 
-    def test_spec_request_path(self):
+    @patch('os.path.exists', lambda n: True)
+    @patch('validatehttp.spec.open', create=True)
+    def test_spec_request_path(self, mock):
         '''Test URL and path construction'''
-        spec = ValidatorSpec.load_spec_handle(StringIO(self.fixtures[1]),
-                                              spec_format='json')
+        mock_open(mock, read_data=self.fixtures[1])
+        spec = JsonValidatorSpec.load('test.json')
         rule = list(spec.get_rules())[0]
 
         # No host/port
@@ -83,10 +85,12 @@ class TestSpec(TestCase):
         assert 'Host' in req.headers
         assert req.headers['Host'] == 'example.com'
 
-    def test_spec_request_header(self):
+    @patch('os.path.exists', lambda n: True)
+    @patch('validatehttp.spec.open', create=True)
+    def test_spec_request_header(self, mock):
         '''Test request with headers'''
-        spec = ValidatorSpec.load_spec_handle(StringIO(self.fixtures[3]),
-                                              spec_format='json')
+        mock_open(mock, read_data=self.fixtures[3])
+        spec = JsonValidatorSpec.load('test.json')
         rule = list(spec.get_rules())[0]
 
         # No host/port

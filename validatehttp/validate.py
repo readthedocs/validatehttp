@@ -9,12 +9,13 @@ comparing the given responses to rulesets loaded by the rule spec.
 
 from __future__ import print_function, unicode_literals
 
+import os.path
 from collections import namedtuple
 
 from requests import Session
 from requests.exceptions import SSLError, ConnectionError
 
-from .spec import ValidatorSpec
+from .spec import JsonValidatorSpec, YamlValidatorSpec
 
 
 class Validator(object):
@@ -37,7 +38,13 @@ class Validator(object):
     @classmethod
     def load(cls, spec_file, host=None, port=None):
         '''Load spec from file and return an validator instance'''
-        spec = ValidatorSpec.load(spec_file)
+        (_, fileext) = os.path.splitext(spec_file)
+        if fileext.lower() == '.json':
+            spec = JsonValidatorSpec.load(spec_file)
+        elif fileext.lower() == '.yaml':
+            spec = YamlValidatorSpec.load(spec_file)
+        else:
+            raise ValueError('Unsupported file type')
         return cls(spec, host, port)
 
     def validate(self):

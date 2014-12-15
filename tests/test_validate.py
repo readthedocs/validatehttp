@@ -9,7 +9,7 @@ from mock import patch
 from requests import Response
 from requests.exceptions import SSLError, ConnectionError
 
-from validatehttp.spec import ValidatorSpec, ValidatorSpecRule
+from validatehttp.spec import YamlValidatorSpec, ValidatorSpecRule
 from validatehttp.validate import Validator, ValidationPass, ValidationFail
 
 
@@ -17,7 +17,7 @@ class TestValidator(TestCase):
 
     def setUp(self):
         self.validator = Validator('test.yaml', host='127.0.0.1', port=80)
-        self.validator.spec = ValidatorSpec([
+        self.validator.spec = YamlValidatorSpec([
             ValidatorSpecRule(
                 'http://example.com',
                 status_code=200,

@@ -16,7 +16,7 @@ except ImportError:
     pass
 
 
-class ValidatorSpec(object):
+class ValidatorSpecBase(object):
     '''List of validator spec rules'''
 
     def __init__(self, rules):
@@ -27,38 +27,9 @@ class ValidatorSpec(object):
         '''Load from spec file'''
         if not os.path.exists(spec_file):
             raise IOError('Spec file does not exist')
-
-        (_, fileext) = os.path.splitext(spec_file)
         handle = open(spec_file)
-        if fileext.lower() == '.json':
-            return cls.load_spec_handle(handle, 'json')
-        elif fileext.lower() == '.yaml':
-            return cls.load_spec_handle(handle, 'yaml')
-        else:
-            raise Exception("Unsupported file type")
-
-    @classmethod
-    def load_spec_handle(cls, handle, spec_format='json'):
-        '''Load from spec file handle'''
-        # Load spec
-        spec = {}
-        if spec_format == 'json':
-            try:
-                spec = json.load(handle)
-            except ValueError:
-                raise ValueError("Invalid JSON spec file")
-        elif spec_format == 'yaml':
-            if not 'yaml' in sys.modules:
-                raise NameError("YAML support is missing")
-            try:
-                spec = yaml.load(handle)
-            except ValueError:
-                raise ValueError("Invalid YAML spec file")
-        else:
-            raise Exception("Unsupported spec format")
-
-        # Fish out rules
         rules = []
+        spec = cls.parse(handle)
         for (uri, params) in spec.items():
             try:
                 rules.append(ValidatorSpecRule(uri, **params))
@@ -66,10 +37,38 @@ class ValidatorSpec(object):
                 pass
         return cls(rules)
 
+    @classmethod
+    def parse(cls, handle):
+        raise NotImplemented()
+
     def get_rules(self):
         '''Yield rules with proper request object'''
         for rule in self.rules:
             yield rule
+
+
+class JsonValidatorSpec(ValidatorSpecBase):
+
+    @classmethod
+    def parse(cls, handle):
+        try:
+            spec = json.load(handle)
+        except ValueError:
+            raise ValueError("Invalid JSON spec file")
+        return spec
+
+
+class YamlValidatorSpec(ValidatorSpecBase):
+
+    @classmethod
+    def parse(cls, handle):
+        if not 'yaml' in sys.modules:
+            raise NameError("YAML support is missing")
+        try:
+            spec = yaml.load(handle)
+        except ValueError:
+            raise ValueError("Invalid YAML spec file")
+        return spec
 
 
 class ValidatorSpecRule(object):
