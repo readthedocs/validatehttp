@@ -17,8 +17,8 @@ setup(
     author_email='aj@ohess.org',
     license='MIT',
     packages=find_packages(),
-    install_requires=['pynag', 'requests', 'pyyaml'],
-    tests_require=['nose'],
+    install_requires=['pynag', 'requests', 'pyyaml', 'mock'],
+    tests_require=['nose', 'mock'],
     test_suite='nose.collector',
     entry_points = {
         'console_scripts': [

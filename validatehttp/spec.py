@@ -97,6 +97,11 @@ class ValidatorSpecRule(object):
         return "<ValidatorSpecRule uri={uri}>".format(**self.__dict__)
 
     def get_request(self, host=None, port=None):
+        '''Creat HTTP request from host/port and request params
+
+        :param host: Host address
+        :param port: Host port
+        '''
         # Replace network location chunk of URI so that we can hit separate
         # web servers with the same spec file
         params = self.request
@@ -119,21 +124,28 @@ class ValidatorSpecRule(object):
         return Request(**params)
 
     def matches(self, resp):
+        '''Test whether HTTP response matches defined rule response
+
+        Returns True on a match, otherwise raise :py:cls:`ValueError` on a
+        mismatch.
+
+        :param resp: HTTP response object from request
+        :type resp: Response
+        '''
         if isinstance(resp, Response):
             params = self.response
-            # Compare headers
-            if 'headers' in params:
-                for (header, value) in params.pop('headers').items():
-                    resp_value = resp.headers.get(header)
-                    if resp_value != value:
-                        raise ValueError('Response header {0} mismatch '
-                                         '({1} != {2})'.format(header, value,
-                                                               resp_value))
-            # Compare others
             for (key, value) in params.items():
-                resp_value = getattr(resp, key, None)
-                if resp_value != value:
-                    raise ValueError('Response {0} mismatch '
-                                     '({1} != {2})'.format(key, value,
-                                                           resp_value))
+                if key == 'headers':
+                    for (header, value) in params.get('headers').items():
+                        resp_value = resp.headers.get(header)
+                        if resp_value != value:
+                            raise ValueError(
+                                'Response header {0} mismatch ({1} != {2})'
+                                .format(header, value, resp_value))
+                else:
+                    resp_value = getattr(resp, key, None)
+                    if resp_value != value:
+                        raise ValueError(
+                            'Response {0} mismatch ({1} != {2})'
+                            .format(key, value, resp_value))
         return True

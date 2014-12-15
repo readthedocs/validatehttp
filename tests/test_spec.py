@@ -1,3 +1,7 @@
+'''
+Test validation spec and spec rule creation
+'''
+
 # -*- coding: utf-8 -*-
 
 from __future__ import print_function, unicode_literals
@@ -5,7 +9,10 @@ from __future__ import print_function, unicode_literals
 from io import StringIO
 from unittest import TestCase
 
-from validatehttp.spec import ValidatorSpec, ValidatorSpecRule
+from mock import patch, mock_open
+
+from validatehttp.validate import Validator
+from validatehttp.spec import ValidatorSpec
 
 
 class TestSpec(TestCase):
@@ -18,15 +25,21 @@ class TestSpec(TestCase):
             '{"http://example.com": {"request": {"headers": {"x-foo": 42}}}}'
         ]
 
-    def test_spec_load(self):
-        spec = ValidatorSpec.load_spec_handle(StringIO(self.fixtures[0]),
-                                              spec_format='json')
-        assert len(list(spec.get_rules())) == 1
+    @patch('os.path.exists', lambda n: True)
+    @patch('validatehttp.spec.open', create=True)
+    def test_load_json_from_file(self, mock):
+        '''Load json from mocked file'''
+        mock_open(mock, read_data=self.fixtures[0])
+        validator = Validator.load('rtd.json', host='127.0.0.1', port=8000)
+        self.assertEqual(len(list(validator.spec.get_rules())), 1)
 
-    def test_spec_request_host(self):
-        spec = ValidatorSpec.load_spec_handle(StringIO(self.fixtures[0]),
-                                              spec_format='json')
-        rule = list(spec.get_rules())[0]
+    @patch('os.path.exists', lambda n: True)
+    @patch('validatehttp.spec.open', create=True)
+    def test_spec_request_host(self, mock):
+        '''Compare spec rules'''
+        mock_open(mock, read_data=self.fixtures[0])
+        validator = Validator.load('rtd.json', host='127.0.0.1', port=8000)
+        rule = list(validator.spec.get_rules())[0]
 
         # No host/port
         req = rule.get_request()
@@ -47,6 +60,7 @@ class TestSpec(TestCase):
         assert req.headers['Host'] == 'example.com'
 
     def test_spec_request_path(self):
+        '''Test URL and path construction'''
         spec = ValidatorSpec.load_spec_handle(StringIO(self.fixtures[1]),
                                               spec_format='json')
         rule = list(spec.get_rules())[0]
@@ -70,6 +84,7 @@ class TestSpec(TestCase):
         assert req.headers['Host'] == 'example.com'
 
     def test_spec_request_header(self):
+        '''Test request with headers'''
         spec = ValidatorSpec.load_spec_handle(StringIO(self.fixtures[3]),
                                               spec_format='json')
         rule = list(spec.get_rules())[0]
