@@ -1,7 +1,12 @@
 *.pyc
-*.egg/
+*.eggs/
 *.egg
 *.egg-info/
 build/
 *.swp
 env/
+.tox
+.coverage
+.python-version
+.ropeproject
+.cache

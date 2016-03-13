@@ -17,12 +17,11 @@ setup(
     author_email='aj@ohess.org',
     license='MIT',
     packages=find_packages(),
-    install_requires=['requests'],
+    install_requires=['requests', 'pyyaml'],
     extras_require={
-        'YAML': ['pyyaml'],
         'Nagios': ['pynag'],
     },
-    tests_require=['nose', 'mock', 'pyyaml'],
+    tests_require=['pytest', 'mock', 'pyyaml'],
     test_suite='nose.collector',
     entry_points = {
         'console_scripts': [
