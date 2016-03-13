@@ -10,10 +10,12 @@ comparing the given responses to rulesets loaded by the rule spec.
 from __future__ import print_function, unicode_literals
 
 import os.path
+import pprint
 from collections import namedtuple
 
 from requests import Session
 from requests.exceptions import SSLError, ConnectionError
+from requests.packages import urllib3
 
 from .spec import JsonValidatorSpec, YamlValidatorSpec
 
@@ -27,16 +29,18 @@ class Validator(object):
     :param port: Host port to perform requests against
     '''
 
-    def __init__(self, spec, host=None, port=None):
+    def __init__(self, spec, host=None, port=None, verify=True, debug=False):
         self.spec = spec
         self.host = host
         self.port = port
+        self.verify = verify
+        self.debug = debug
 
     def __repr__(self):
         return '<Validator spec={spec}>'.format(**self.__dict__)
 
     @classmethod
-    def load(cls, spec_file, host=None, port=None):
+    def load(cls, spec_file, *args, **kwargs):
         '''Load spec from file and return an validator instance'''
         (_, fileext) = os.path.splitext(spec_file)
         if fileext.lower() == '.json':
@@ -45,7 +49,7 @@ class Validator(object):
             spec = YamlValidatorSpec.load(spec_file)
         else:
             raise ValueError('Unsupported file type')
-        return cls(spec, host, port)
+        return cls(spec, *args, **kwargs)
 
     def validate(self):
         '''Run validation using HTTP requests against validation host
@@ -56,10 +60,17 @@ class Validator(object):
         :py:cls:`ValidationFail` response.
         '''
         session = Session()
+        if not self.verify:
+            urllib3.disable_warnings()
         for rule in self.spec.get_rules():
             req = rule.get_request(self.host, self.port)
+            if self.debug:
+                pprint.pprint(req.__dict__)
             try:
-                resp = session.send(req.prepare(), allow_redirects=False)
+                resp = session.send(req.prepare(), allow_redirects=False,
+                                    verify=self.verify)
+                if self.debug:
+                    pprint.pprint(resp.__dict__)
                 if rule.matches(resp):
                     yield ValidationPass(rule=rule, request=req, response=resp)
             except (ConnectionError, SSLError) as exc:

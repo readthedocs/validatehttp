@@ -10,9 +10,10 @@ from .validate import Validator, ValidationPass, ValidationFail
 class ValidatorCLI(object):
     '''validatehttp - HTTP response validator'''
 
-    def __init__(self, validator, verbose=False):
+    def __init__(self, validator, verbose=False, debug=False):
         self.validator = validator
         self.verbose = verbose
+        self.debug = debug
 
     def run(self):
         results = list(self.validator.validate())
@@ -46,10 +47,16 @@ class ValidatorCLI(object):
                             help='HTTP spec file to parse', required=True)
         parser.add_argument('-v', '--verbose', dest='verbose',
                             action='store_true', help='Verbose output')
+        parser.add_argument('-V', '--no-verify', dest='verify',
+                            action='store_false',
+                            help="Don't verify SSL connections")
+        parser.add_argument('-d', '--debug', dest='debug',
+                            action='store_true', help='Debug output')
         args = parser.parse_args()
 
         # Create validator interface from specfile, run the cli process and
         # fancy output
-        validator = Validator.load(args.specfile, host=args.host, port=args.port)
-        self = cls(validator, verbose=args.verbose)
+        validator = Validator.load(args.specfile, host=args.host, port=args.port,
+                                   verify=args.verify, debug=args.debug)
+        self = cls(validator, verbose=args.verbose, debug=args.debug)
         return self.run()
