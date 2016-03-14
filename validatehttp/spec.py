@@ -140,14 +140,14 @@ class ValidatorSpecRule(object):
                         resp_value = resp.headers.get(header)
                         if resp_value != value:
                             raise ValidationError(
-                                'Response header {0} mismatch'.format(header),
+                                'Response header mismatch: {0}'.format(header),
                                 mismatch=(value, resp_value),
                             )
                 else:
                     resp_value = getattr(resp, key, None)
                     if resp_value != value:
                         raise ValidationError(
-                            'Response {0} mismatch'.format(key),
+                            'Response mismatch: {0}'.format(key),
                             mismatch=(value, resp_value),
                         )
         return True

@@ -6,6 +6,7 @@ from __future__ import print_function, unicode_literals
 
 import argparse
 import textwrap
+from collections import Counter
 
 from termcolor import cprint
 
@@ -21,22 +22,19 @@ class ValidatorCLI(object):
         self.debug = debug
 
     def run(self):
-        results = list(self.validator.validate())
-        passed = [result for result in results
-                  if isinstance(result, ValidationPass)]
-        failures = [result for result in results
-                    if isinstance(result, ValidationFail)]
-        output_list = failures
-        if self.verbose:
-            output_list = results
+        count = Counter(results=0, passes=0, failures=0)
 
-        for result in output_list:
+        for result in self.validator.validate():
+            count['results'] += 1
             if isinstance(result, ValidationPass):
+                count['passes'] += 1
                 header = '✓ Pass: {0}'.format(result.rule.uri)
                 cprint(header, 'green', attrs=['bold'])
             elif isinstance(result, ValidationFail):
+                count['failures'] += 1
                 header = '✗ Fail: {0}'.format(result.rule.uri)
                 cprint(header, 'red', attrs=['bold'])
+
                 if self.verbose:
                     extra = '\n'.join(textwrap.wrap(
                         str(result.error),
@@ -62,10 +60,15 @@ class ValidatorCLI(object):
                         pass
 
                     if extra:
-                        cprint(extra, 'red')
-        print('Passed {passed}/{count} ({failures} failures)'
-              .format(count=len(results), passed=len(passed),
-                      failures=len(failures)))
+                        cprint(extra, 'red', attrs=['bold'])
+
+        msg = '{passes}/{results} passed ({failures} failures)'.format(**count)
+        if count['passes'] == count['results']:
+            msg = ' '.join(['Passed!', msg])
+            cprint('\n'.join(['-' * len(msg), msg]), 'green')
+        else:
+            msg = ' '.join(['Failed!', msg])
+            cprint('\n'.join(['-' * len(msg), msg]), 'red')
 
     @classmethod
     def cli(cls):
