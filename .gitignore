@@ -10,3 +10,4 @@ env/
 .python-version
 .ropeproject
 .cache
+docs/_build
