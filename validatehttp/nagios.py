@@ -1,8 +1,10 @@
+"""Nagios interface to spec rule testing"""
+
 # -*- coding: utf-8 -*-
 
 from __future__ import print_function, unicode_literals
 
-from pynag.Plugins import simple as Plugin
+from pynag.Plugins import simple as Plugin  # noqa
 
 from .validate import Validator, ValidationPass, ValidationFail
 
@@ -23,6 +25,7 @@ class CheckURLSpecPlugin(Plugin):
 
     @classmethod
     def run(cls):
+        """Create instance of validator for Nagios output"""
         self = cls()
         self.activate()
         spec_file = self['file']

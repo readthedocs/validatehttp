@@ -1,9 +1,9 @@
-'''
+"""
 Load and run validation rules
 
 This module runs the actual validation rules, by performing HTTP requests and
 comparing the given responses to rulesets loaded by the rule spec.
-'''
+"""
 
 # -*- coding: utf-8 -*-
 
@@ -21,13 +21,13 @@ from .spec import JsonValidatorSpec, YamlValidatorSpec
 
 
 class Validator(object):
-    '''Create object to run validation
+    """Create object to run validation
 
     :param spec: Validation spec instance
     :type spec: ValidatorSpec
     :param host: Host address to perform requests against
     :param port: Host port to perform requests against
-    '''
+    """
 
     def __init__(self, spec, host=None, port=None, verify=True, debug=False):
         self.spec = spec
@@ -37,28 +37,31 @@ class Validator(object):
         self.debug = debug
 
     def __repr__(self):
+        """String representation of validator instance"""
         return '<Validator spec={spec}>'.format(**self.__dict__)
 
     @classmethod
     def load(cls, spec_file, *args, **kwargs):
-        '''Load spec from file and return an validator instance'''
+        """Load spec from file and return an validator instance"""
         (_, fileext) = os.path.splitext(spec_file)
+        spec_class = None
         if fileext.lower() == '.json':
-            spec = JsonValidatorSpec.load(spec_file)
+            spec_class = JsonValidatorSpec
         elif fileext.lower() == '.yaml':
-            spec = YamlValidatorSpec.load(spec_file)
+            spec_class = YamlValidatorSpec
         else:
             raise ValueError('Unsupported file type')
+        spec = spec_class.load(spec_file)
         return cls(spec, *args, **kwargs)
 
     def validate(self):
-        '''Run validation using HTTP requests against validation host
+        """Run validation using HTTP requests against validation host
 
         Using rules provided by spec, perform requests against validation host
         for each rule. Request response is verified to match the spec respsonse
         rule.  This will yield either a :py:cls:`ValidationPass` or
         :py:cls:`ValidationFail` response.
-        '''
+        """
         session = Session()
         if not self.verify:
             urllib3.disable_warnings()

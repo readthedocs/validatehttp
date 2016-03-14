@@ -1,4 +1,4 @@
-'''HTTP validator spec object representation'''
+"""HTTP validator spec object representation"""
 
 # -*- coding: utf-8 -*-
 
@@ -17,14 +17,14 @@ except ImportError:
 
 
 class ValidatorSpecBase(object):
-    '''List of validator spec rules'''
+    """List of validator spec rules"""
 
     def __init__(self, rules):
         self.rules = rules
 
     @classmethod
     def load(cls, spec_file):
-        '''Load from spec file'''
+        """Load from spec file"""
         if not os.path.exists(spec_file):
             raise IOError('Spec file does not exist')
         handle = open(spec_file)
@@ -38,11 +38,11 @@ class ValidatorSpecBase(object):
         return cls(rules)
 
     @classmethod
-    def parse(cls, handle):
-        raise NotImplemented()
+    def parse(cls, handle):  # pylint: disable=unused-argument
+        raise NotImplementedError()
 
     def get_rules(self):
-        '''Yield rules with proper request object'''
+        """Yield rules with proper request object"""
         for rule in self.rules:
             yield rule
 
@@ -62,7 +62,7 @@ class YamlValidatorSpec(ValidatorSpecBase):
 
     @classmethod
     def parse(cls, handle):
-        if not 'yaml' in sys.modules:
+        if 'yaml' not in sys.modules:
             raise NameError("YAML support is missing")
         try:
             spec = yaml.safe_load(handle.read())
@@ -72,7 +72,7 @@ class YamlValidatorSpec(ValidatorSpecBase):
 
 
 class ValidatorSpecRule(object):
-    '''Validator spec rule'''
+    """Validator spec rule"""
 
     def __init__(self, uri, request=None, **response):
         self.uri = uri
@@ -80,27 +80,28 @@ class ValidatorSpecRule(object):
         # Normalize request
         if request is None:
             request = {}
-        if not 'headers' in request:
+        if 'headers' not in request:
             request['headers'] = {}
-        if not 'method' in request:
+        if 'method' not in request:
             request['method'] = 'get'
         self.request = request
 
         if response is None:
             response = {}
-        if not 'headers' in response:
+        if 'headers' not in response:
             response['headers'] = {}
         self.response = response
 
     def __repr__(self):
+        """String representation of spec rule"""
         return "<ValidatorSpecRule uri={uri}>".format(**self.__dict__)
 
     def get_request(self, host=None, port=None):
-        '''Creat HTTP request from host/port and request params
+        """Creat HTTP request from host/port and request params
 
         :param host: Host address
         :param port: Host port
-        '''
+        """
         # Replace network location chunk of URI so that we can hit separate
         # web servers with the same spec file
         params = self.request
@@ -123,14 +124,14 @@ class ValidatorSpecRule(object):
         return Request(**params)
 
     def matches(self, resp):
-        '''Test whether HTTP response matches defined rule response
+        """Test whether HTTP response matches defined rule response
 
         Returns True on a match, otherwise raise :py:cls:`ValueError` on a
         mismatch.
 
         :param resp: HTTP response object from request
         :type resp: Response
-        '''
+        """
         if isinstance(resp, Response):
             params = self.response
             for (key, value) in params.items():

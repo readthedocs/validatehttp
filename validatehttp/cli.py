@@ -1,3 +1,5 @@
+"""Command line interface for testing"""
+
 # -*- coding: utf-8 -*-
 
 from __future__ import print_function, unicode_literals
@@ -8,7 +10,7 @@ from .validate import Validator, ValidationPass, ValidationFail
 
 
 class ValidatorCLI(object):
-    '''validatehttp - HTTP response validator'''
+    """validatehttp - HTTP response validator"""
 
     def __init__(self, validator, verbose=False, debug=False):
         self.validator = validator
@@ -37,6 +39,7 @@ class ValidatorCLI(object):
 
     @classmethod
     def cli(cls):
+        """Set up command line interface, process arguments"""
         # Build up command interface
         parser = argparse.ArgumentParser(description=cls.__doc__)
         parser.add_argument('-H', '--host', dest='host', action='store',
@@ -56,7 +59,8 @@ class ValidatorCLI(object):
 
         # Create validator interface from specfile, run the cli process and
         # fancy output
-        validator = Validator.load(args.specfile, host=args.host, port=args.port,
-                                   verify=args.verify, debug=args.debug)
+        validator = Validator.load(args.specfile, host=args.host,
+                                   port=args.port, verify=args.verify,
+                                   debug=args.debug)
         self = cls(validator, verbose=args.verbose, debug=args.debug)
         return self.run()
