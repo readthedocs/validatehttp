@@ -5,7 +5,6 @@
 from __future__ import print_function, unicode_literals
 
 import argparse
-import textwrap
 from collections import Counter
 
 from termcolor import cprint
