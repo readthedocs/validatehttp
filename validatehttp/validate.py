@@ -17,7 +17,7 @@ from requests import Session
 from requests.exceptions import SSLError, ConnectionError
 from requests.packages import urllib3
 
-from .spec import JsonValidatorSpec, YamlValidatorSpec
+from .spec import JsonValidatorSpec, YamlValidatorSpec, ValidationError
 
 
 class Validator(object):
@@ -80,14 +80,36 @@ class Validator(object):
                 # No response yet
                 yield ValidationFail(rule=rule, request=req, response=None,
                                      error=exc)
-            except ValueError as exc:
+            except ValidationError as exc:
                 # Response received, validation error
                 yield ValidationFail(rule=rule, request=req, response=resp,
                                      error=exc)
 
 
-ValidationPass = namedtuple('ValidationPass', ['rule', 'request', 'response'],
-                            verbose=False)
-ValidationFail = namedtuple('ValidationFail',
-                            ['rule', 'request', 'response', 'error'],
-                            verbose=False)
+class ValidationResult(object):
+    """Base for validation"""
+
+    def __init__(self, rule, request, response, verbose=False):
+        self.rule = rule
+        self.request = request
+        self.response = response
+        self.verbose = verbose
+
+
+class ValidationPass(ValidationResult):
+    """Validation pass"""
+    pass
+
+
+class ValidationFail(ValidationResult):
+
+    def __init__(self, rule, request, response, error, verbose=False):
+        self.error = error
+        super(ValidationFail, self).__init__(rule, request, response, verbose)
+
+    def mismatch(self):
+        try:
+            (expected, received) = getattr(self.error, 'mismatch')
+            return (expected, received)
+        except (AttributeError, TypeError, ValueError):
+            return None

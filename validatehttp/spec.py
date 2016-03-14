@@ -139,13 +139,23 @@ class ValidatorSpecRule(object):
                     for (header, value) in params.get('headers').items():
                         resp_value = resp.headers.get(header)
                         if resp_value != value:
-                            raise ValueError(
-                                'Response header {0} mismatch ({1} != {2})'
-                                .format(header, value, resp_value))
+                            raise ValidationError(
+                                'Response header {0} mismatch'.format(header),
+                                mismatch=(value, resp_value),
+                            )
                 else:
                     resp_value = getattr(resp, key, None)
                     if resp_value != value:
-                        raise ValueError(
-                            'Response {0} mismatch ({1} != {2})'
-                            .format(key, value, resp_value))
+                        raise ValidationError(
+                            'Response {0} mismatch'.format(key),
+                            mismatch=(value, resp_value),
+                        )
         return True
+
+
+class ValidationError(ValueError):
+    """Validation error with extra data about validation failure"""
+
+    def __init__(self, *args, **kwargs):
+        self.mismatch = kwargs.pop('mismatch', None)
+        super(ValueError, self).__init__(*args, **kwargs)

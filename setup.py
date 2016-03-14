@@ -17,7 +17,7 @@ setup(
     author_email='aj@ohess.org',
     license='MIT',
     packages=find_packages(),
-    install_requires=['requests', 'pyyaml'],
+    install_requires=['requests', 'pyyaml', 'termcolor'],
     extras_require={
         'Nagios': ['pynag'],
     },

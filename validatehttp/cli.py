@@ -1,10 +1,13 @@
-"""Command line interface for testing"""
-
 # -*- coding: utf-8 -*-
+
+"""Command line interface for testing"""
 
 from __future__ import print_function, unicode_literals
 
 import argparse
+import textwrap
+
+from termcolor import cprint
 
 from .validate import Validator, ValidationPass, ValidationFail
 
@@ -29,10 +32,37 @@ class ValidatorCLI(object):
 
         for result in output_list:
             if isinstance(result, ValidationPass):
-                print('Pass: spec {0}'.format(result.rule.uri))
+                header = '✓ Pass: {0}'.format(result.rule.uri)
+                cprint(header, 'green', attrs=['bold'])
             elif isinstance(result, ValidationFail):
-                print('Fail: spec {0}: {1}'
-                      .format(result.rule.uri, result.error))
+                header = '✗ Fail: {0}'.format(result.rule.uri)
+                cprint(header, 'red', attrs=['bold'])
+                if self.verbose:
+                    extra = '\n'.join(textwrap.wrap(
+                        str(result.error),
+                        initial_indent=' ' * 4,
+                        subsequent_indent=' ' * 4,
+                    ))
+                    try:
+                        (expected, received) = result.mismatch()
+                        extra += '\n'.join([
+                            '',
+                            '\n'.join(textwrap.wrap(
+                                'Expected: {0}'.format(expected),
+                                initial_indent=' ' * 8,
+                                subsequent_indent=' ' * 8,
+                            )),
+                            '\n'.join(textwrap.wrap(
+                                'Received: {0}'.format(received),
+                                initial_indent=' ' * 8,
+                                subsequent_indent=' ' * 8,
+                            ))
+                        ])
+                    except (AttributeError, TypeError):
+                        pass
+
+                    if extra:
+                        cprint(extra, 'red')
         print('Passed {passed}/{count} ({failures} failures)'
               .format(count=len(results), passed=len(passed),
                       failures=len(failures)))
