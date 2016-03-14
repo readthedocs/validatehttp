@@ -1,11 +1,11 @@
+# -*- coding: utf-8 -*-
+
 """
 Load and run validation rules
 
 This module runs the actual validation rules, by performing HTTP requests and
 comparing the given responses to rulesets loaded by the rule spec.
 """
-
-# -*- coding: utf-8 -*-
 
 from __future__ import print_function, unicode_literals
 

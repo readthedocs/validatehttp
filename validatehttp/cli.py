@@ -36,25 +36,13 @@ class ValidatorCLI(object):
                 cprint(header, 'red', attrs=['bold'])
 
                 if self.verbose:
-                    extra = '\n'.join(textwrap.wrap(
-                        str(result.error),
-                        initial_indent=' ' * 4,
-                        subsequent_indent=' ' * 4,
-                    ))
+                    extra = (' ' * 4) + str(result.error)
                     try:
                         (expected, received) = result.mismatch()
                         extra += '\n'.join([
                             '',
-                            '\n'.join(textwrap.wrap(
-                                'Expected: {0}'.format(expected),
-                                initial_indent=' ' * 8,
-                                subsequent_indent=' ' * 8,
-                            )),
-                            '\n'.join(textwrap.wrap(
-                                'Received: {0}'.format(received),
-                                initial_indent=' ' * 8,
-                                subsequent_indent=' ' * 8,
-                            ))
+                            (' ' * 8) + 'Expected: {0}'.format(expected),
+                            (' ' * 8) + 'Received: {0}'.format(received),
                         ])
                     except (AttributeError, TypeError):
                         pass
