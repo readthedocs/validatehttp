@@ -158,4 +158,4 @@ class ValidationError(ValueError):
 
     def __init__(self, *args, **kwargs):
         self.mismatch = kwargs.pop('mismatch', None)
-        super(ValueError, self).__init__(*args, **kwargs)
+        super(ValidationError, self).__init__(*args, **kwargs)

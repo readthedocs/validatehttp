@@ -83,7 +83,7 @@ class TestValidatorValidation(TestCase):
         mock.return_value.headers = {'x-test': 'foobar'}
         for result in self.validator.validate():
             self.assertRuleMatches(result, passing=False,
-                                   error=r'status_code mismatch')
+                                   error=r'mismatch: status_code')
 
     @patch('validatehttp.validate.Session.send')
     def test_response_header_mismatch(self, mock):
@@ -93,11 +93,11 @@ class TestValidatorValidation(TestCase):
         mock.return_value.headers = {'x-nonexistant': 'foobar'}
         for result in self.validator.validate():
             self.assertRuleMatches(result, passing=False,
-                                   error=r'header x-test mismatch')
+                                   error=r'header mismatch: x-test')
         mock.return_value.headers = {'x-test': 'do not match'}
         for result in self.validator.validate():
             self.assertRuleMatches(result, passing=False,
-                                   error=r'header x-test mismatch')
+                                   error=r'header mismatch: x-test')
 
     @patch('validatehttp.validate.Session.send')
     def test_connection_error(self, mock):

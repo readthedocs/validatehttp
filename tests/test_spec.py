@@ -34,7 +34,6 @@ class TestSpec(TestCase):
         mock_open(mock, read_data=self.fixtures[0])
         validator = Validator.load('rtd.json', host='127.0.0.1', port=8000)
         self.assertEqual(len(list(validator.spec.get_rules())), 1)
-        self.assertEqual(True, False)
 
     @patch('os.path.exists', lambda n: True)
     @patch('validatehttp.spec.open', create=True)

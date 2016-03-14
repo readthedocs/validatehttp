@@ -11,7 +11,6 @@ from __future__ import print_function, unicode_literals
 
 import os.path
 import pprint
-from collections import namedtuple
 
 from requests import Session
 from requests.exceptions import SSLError, ConnectionError
@@ -98,6 +97,7 @@ class ValidationResult(object):
 
 class ValidationPass(ValidationResult):
     """Validation pass"""
+
     pass
 
 

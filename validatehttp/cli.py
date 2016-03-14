@@ -21,6 +21,7 @@ class ValidatorCLI(object):
         self.debug = debug
 
     def run(self):
+        """Run validator with CLI output"""
         count = Counter(results=0, passes=0, failures=0)
 
         for result in self.validator.validate():
