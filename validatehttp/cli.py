@@ -39,13 +39,14 @@ class ValidatorCLI(object):
                     extra = (' ' * 4) + str(result.error)
                     try:
                         (expected, received) = result.mismatch()
-                        received = received.decode('utf-8')
+                        if isinstance(received, str):
+                            received = received.decode('utf-8')
                         extra += unicode.join(u'\n', [
                             u'',
                             (u' ' * 8) + u'Expected: {0}'.format(expected),
                             (u' ' * 8) + u'Received: {0}'.format(received),
                         ])
-                    except (AttributeError, TypeError):
+                    except (AttributeError, TypeError) as exc:
                         pass
 
                     if extra:
