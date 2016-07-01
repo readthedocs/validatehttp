@@ -35,7 +35,7 @@ class CheckURLSpecPlugin(Plugin):
         port = None
         if self['port'] is not None:
             port = self['port']
-        verify = not self.get('no-verify', False)
+        verify = self['no-verify'] or True
 
         # Build, test validator
         validator = Validator.load(spec_file, host, port, verify=verify)
