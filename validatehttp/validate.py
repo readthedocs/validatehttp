@@ -14,7 +14,11 @@ import pprint
 
 from requests import Session
 from requests.exceptions import SSLError, ConnectionError
-from requests.packages import urllib3
+
+try:
+    from requests.packages import urllib3
+except ImportError:
+    import urllib3
 
 from .spec import JsonValidatorSpec, YamlValidatorSpec, ValidationError
 
