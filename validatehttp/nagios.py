@@ -21,6 +21,8 @@ class CheckURLSpecPlugin(Plugin):
         # Add arguments
         self.add_arg('f', 'file', 'Spec file to parse')
         self.add_arg('p', 'port', 'Host HTTP port', required=False)
+        self.add_arg('V', 'no-verify', 'No HTTPS verification', required=False,
+                     action='store_false')
         self.must_threshold = False
 
     @classmethod
@@ -33,9 +35,10 @@ class CheckURLSpecPlugin(Plugin):
         port = None
         if self['port'] is not None:
             port = self['port']
+        verify = not self.get('no-verify', False)
 
         # Build, test validator
-        validator = Validator.load(spec_file, host, port)
+        validator = Validator.load(spec_file, host, port, verify=verify)
         results = list(validator.validate())
         passed = [result for result in results
                   if isinstance(result, ValidationPass)]

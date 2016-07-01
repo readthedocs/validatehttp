@@ -66,7 +66,7 @@ class Validator(object):
         :py:cls:`ValidationFail` response.
         """
         session = Session()
-        if not self.verify:
+        if not self.verify and hasattr(urllib3, 'disable_warnings'):
             urllib3.disable_warnings()
         for rule in self.spec.get_rules():
             req = rule.get_request(self.host, self.port)
