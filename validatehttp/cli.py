@@ -56,9 +56,11 @@ class ValidatorCLI(object):
         if count['passes'] == count['results']:
             msg = ' '.join(['Passed!', msg])
             cprint('\n'.join(['-' * len(msg), msg]), 'green')
+            return 0
         else:
             msg = ' '.join(['Failed!', msg])
             cprint('\n'.join(['-' * len(msg), msg]), 'red')
+            return 1
 
     @classmethod
     def cli(cls):
