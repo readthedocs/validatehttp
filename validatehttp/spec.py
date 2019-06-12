@@ -7,13 +7,19 @@ from __future__ import print_function, unicode_literals
 import os.path
 import json
 import sys
-import urlparse
 
 from requests import Request, Response
 try:
     import yaml
 except ImportError:
     pass
+
+try:
+    # Python 2.x
+    import urlparse
+except ImportError:
+    # Python 3.x
+    from urllib import parse as urlparse
 
 
 class ValidatorSpecBase(object):

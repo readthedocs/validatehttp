@@ -41,7 +41,7 @@ class ValidatorCLI(object):
                         (expected, received) = result.mismatch()
                         if isinstance(received, str):
                             received = received.decode('utf-8')
-                        extra += unicode.join(u'\n', [
+                        extra += u'\n'.join([
                             u'',
                             (u' ' * 8) + u'Expected: {0}'.format(expected),
                             (u' ' * 8) + u'Received: {0}'.format(received),
