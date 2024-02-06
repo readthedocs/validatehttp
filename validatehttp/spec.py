@@ -154,11 +154,17 @@ class ValidatorSpecRule(object):
                         # Response was not OK. Ignoring content check.
                         continue
 
-                    for value in params.get('content'):
-                        if value not in resp.text:
-                            raise ValidationError(
-                                'Response content not found: {0}'.format(value),
-                            )
+                    for (status, contents) in params.get('content').items():
+                        for value in contents:
+                            if status == 'present' and value not in resp.text:
+                                raise ValidationError(
+                                    'Response content not found: {0}'.format(value),
+                                )
+                            if status == 'absent' and value in resp.text:
+                                raise ValidationError(
+                                    'Response content not found: {0}'.format(value),
+                                )
+
                 else:
                     resp_value = getattr(resp, key, None)
                     if resp_value != value:

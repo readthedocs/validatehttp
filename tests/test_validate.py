@@ -56,7 +56,7 @@ class TestValidatorValidation(TestCase):
                 'http://example.com',
                 status_code=200,
                 headers={'x-test': 'foobar'},
-                content=["script"],
+                content={'present': ['script'], 'absent': ['meta']},
             )])
 
     def assertRuleMatches(self, result, passing=True, error=None):
