@@ -55,7 +55,8 @@ class TestValidatorValidation(TestCase):
             ValidatorSpecRule(
                 'http://example.com',
                 status_code=200,
-                headers={'x-test': 'foobar'}
+                headers={'x-test': 'foobar'},
+                content=["script"],
             )])
 
     def assertRuleMatches(self, result, passing=True, error=None):
@@ -71,6 +72,7 @@ class TestValidatorValidation(TestCase):
         '''Vanilla response with headers matches rule'''
         mock.return_value = Response()
         mock.return_value.status_code = 200
+        mock.return_value._content = b"Page source containing 'script' word."
         mock.return_value.headers = {'x-test': 'foobar'}
         for result in self.validator.validate():
             self.assertRuleMatches(result, passing=True)
