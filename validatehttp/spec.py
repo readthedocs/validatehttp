@@ -158,11 +158,11 @@ class ValidatorSpecRule(object):
                         for value in contents:
                             if status == 'present' and value not in resp.text:
                                 raise ValidationError(
-                                    'Response content not found: {0}'.format(value),
+                                    'Response content absent: {0}'.format(value),
                                 )
                             if status == 'absent' and value in resp.text:
                                 raise ValidationError(
-                                    'Response content not found: {0}'.format(value),
+                                    'Response content present: {0}'.format(value),
                                 )
 
                 else:
