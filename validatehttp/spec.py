@@ -149,6 +149,18 @@ class ValidatorSpecRule(object):
                                 'Response header mismatch: {0}'.format(header),
                                 mismatch=(value, resp_value),
                             )
+                elif key == 'content':
+                    for (status, contents) in params.get('content').items():
+                        for value in contents:
+                            if status == 'present' and value not in resp.text:
+                                raise ValidationError(
+                                    'Response content absent: {0}'.format(value),
+                                )
+                            if status == 'absent' and value in resp.text:
+                                raise ValidationError(
+                                    'Response content present: {0}'.format(value),
+                                )
+
                 else:
                     resp_value = getattr(resp, key, None)
                     if resp_value != value:
