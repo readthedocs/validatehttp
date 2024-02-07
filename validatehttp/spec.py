@@ -150,10 +150,6 @@ class ValidatorSpecRule(object):
                                 mismatch=(value, resp_value),
                             )
                 elif key == 'content':
-                    if not resp.ok:
-                        # Response was not OK. Ignoring content check.
-                        continue
-
                     for (status, contents) in params.get('content').items():
                         for value in contents:
                             if status == 'present' and value not in resp.text:
