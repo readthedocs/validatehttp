@@ -11,3 +11,6 @@ env/
 .ropeproject
 .cache
 docs/_build
+.direnv/
+.envrc
+.tool-versions

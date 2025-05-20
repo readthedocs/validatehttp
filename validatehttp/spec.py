@@ -2,13 +2,17 @@
 
 # -*- coding: utf-8 -*-
 
-from __future__ import print_function, unicode_literals
+from __future__ import print_function
+from __future__ import unicode_literals
 
-import os.path
 import json
+import os.path
 import sys
 
-from requests import Request, Response
+from requests import Request
+from requests import Response
+
+
 try:
     import yaml
 except ImportError:
@@ -32,11 +36,11 @@ class ValidatorSpecBase(object):
     def load(cls, spec_file):
         """Load from spec file"""
         if not os.path.exists(spec_file):
-            raise IOError('Spec file does not exist')
+            raise IOError("Spec file does not exist")
         handle = open(spec_file)
         rules = []
         spec = cls.parse(handle)
-        for (uri, params) in spec.items():
+        for uri, params in spec.items():
             try:
                 rules.append(ValidatorSpecRule(uri, **params))
             except (KeyError, TypeError):
@@ -54,7 +58,6 @@ class ValidatorSpecBase(object):
 
 
 class JsonValidatorSpec(ValidatorSpecBase):
-
     @classmethod
     def parse(cls, handle):
         try:
@@ -65,10 +68,9 @@ class JsonValidatorSpec(ValidatorSpecBase):
 
 
 class YamlValidatorSpec(ValidatorSpecBase):
-
     @classmethod
     def parse(cls, handle):
-        if 'yaml' not in sys.modules:
+        if "yaml" not in sys.modules:
             raise NameError("YAML support is missing")
         try:
             spec = yaml.safe_load(handle.read())
@@ -86,16 +88,16 @@ class ValidatorSpecRule(object):
         # Normalize request
         if request is None:
             request = {}
-        if 'headers' not in request:
-            request['headers'] = {}
-        if 'method' not in request:
-            request['method'] = 'get'
+        if "headers" not in request:
+            request["headers"] = {}
+        if "method" not in request:
+            request["method"] = "get"
         self.request = request
 
         if response is None:
             response = {}
-        if 'headers' not in response:
-            response['headers'] = {}
+        if "headers" not in response:
+            response["headers"] = {}
         self.response = response
 
     def __repr__(self):
@@ -113,20 +115,19 @@ class ValidatorSpecRule(object):
         params = self.request
         parsed_url = urlparse.urlparse(self.uri)
         if host is None and port is None:
-            params['url'] = self.uri
+            params["url"] = self.uri
             return Request(**params)
         elif host is not None and port is not None:
-            replaced_url = parsed_url._replace(
-                netloc="{}:{}".format(host, port))
-            params['url'] = replaced_url.geturl()
+            replaced_url = parsed_url._replace(netloc="{}:{}".format(host, port))
+            params["url"] = replaced_url.geturl()
         elif host is not None and port is None:
             replaced_url = parsed_url._replace(netloc=host)
-            params['url'] = replaced_url.geturl()
+            params["url"] = replaced_url.geturl()
         elif host is None and port is not None:
-            raise Exception('Host or host and port must be specified')
+            raise Exception("Host or host and port must be specified")
 
         # Add host header with original hostname and return Request object
-        params['headers']['Host'] = parsed_url.hostname
+        params["headers"]["Host"] = parsed_url.hostname
         return Request(**params)
 
     def matches(self, resp):
@@ -140,32 +141,32 @@ class ValidatorSpecRule(object):
         """
         if isinstance(resp, Response):
             params = self.response
-            for (key, value) in params.items():
-                if key == 'headers':
-                    for (header, value) in params.get('headers').items():
+            for key, value in params.items():
+                if key == "headers":
+                    for header, value in params.get("headers").items():
                         resp_value = resp.headers.get(header)
                         if resp_value != value:
                             raise ValidationError(
-                                'Response header mismatch: {0}'.format(header),
+                                "Response header mismatch: {0}".format(header),
                                 mismatch=(value, resp_value),
                             )
-                elif key == 'content':
-                    for (status, contents) in params.get('content').items():
+                elif key == "content":
+                    for status, contents in params.get("content").items():
                         for value in contents:
-                            if status == 'present' and value not in resp.text:
+                            if status == "present" and value not in resp.text:
                                 raise ValidationError(
-                                    'Response content absent: {0}'.format(value),
+                                    "Response content absent: {0}".format(value),
                                 )
-                            if status == 'absent' and value in resp.text:
+                            if status == "absent" and value in resp.text:
                                 raise ValidationError(
-                                    'Response content present: {0}'.format(value),
+                                    "Response content present: {0}".format(value),
                                 )
 
                 else:
                     resp_value = getattr(resp, key, None)
                     if resp_value != value:
                         raise ValidationError(
-                            'Response mismatch: {0}'.format(key),
+                            "Response mismatch: {0}".format(key),
                             mismatch=(value, resp_value),
                         )
         return True
@@ -175,5 +176,5 @@ class ValidationError(ValueError):
     """Validation error with extra data about validation failure"""
 
     def __init__(self, *args, **kwargs):
-        self.mismatch = kwargs.pop('mismatch', None)
+        self.mismatch = kwargs.pop("mismatch", None)
         super(ValidationError, self).__init__(*args, **kwargs)

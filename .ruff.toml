@@ -1,0 +1,21 @@
+# https://docs.astral.sh/ruff/configuration/
+
+# Same as Black.
+line-length = 100
+indent-width = 4
+
+# Assume Python 3.12
+target-version = "py312"
+
+[lint]
+# Enable:
+#  Pyflakes (`F`)
+#  pycodestyle (`E`) error codes.
+#  isort (`I`) import sorting
+select = ["E4", "E7", "E9", "F", "I"]
+
+[lint.isort]
+# https://docs.astral.sh/ruff/settings/#lintisort
+force-single-line = true
+case-sensitive = false
+lines-after-imports = 2
