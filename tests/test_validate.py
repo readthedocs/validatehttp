@@ -65,7 +65,7 @@ class TestValidatorValidation(TestCase):
         else:
             self.assertIsInstance(result, ValidationFail)
         if error is not None:
-            self.assertRegexpMatches(str(result.error), error)
+            self.assertRegex(str(result.error), error)
 
     @patch('validatehttp.validate.Session.send')
     def test_response_match(self, mock):

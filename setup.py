@@ -9,7 +9,7 @@ from setuptools import setup, find_packages
 
 setup(
     name='validatehttp',
-    version=0.1,
+    version=0.2,
     description='Validate a list of HTTP request spec against a host',
     long_description=__doc__,
     keywords='nagios url',

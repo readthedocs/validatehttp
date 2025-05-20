@@ -39,8 +39,6 @@ class ValidatorCLI(object):
                     extra = (' ' * 4) + str(result.error)
                     try:
                         (expected, received) = result.mismatch()
-                        if isinstance(received, str):
-                            received = received.decode('utf-8')
                         extra += u'\n'.join([
                             u'',
                             (u' ' * 8) + u'Expected: {0}'.format(expected),
